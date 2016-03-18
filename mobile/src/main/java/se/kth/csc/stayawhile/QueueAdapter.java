@@ -3,7 +3,9 @@ package se.kth.csc.stayawhile;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -16,7 +18,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
 
     private JSONArray mDataset;
     private boolean firstInQueue = true;
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnCreateContextMenuListener {
 
         public View mCardView;
         public JSONObject mData;
@@ -24,6 +26,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
         public ViewHolder(View v) {
             super(v);
             mCardView = v;
+            v.setOnCreateContextMenuListener(this);
         }
 
         public void setData(JSONObject data) {
@@ -54,6 +57,13 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
             } catch (JSONException e) {
                 //TODO
             }
+        }
+
+
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+            menu.add("Remove from queue");
+            menu.add("Send message");
         }
     }
 
