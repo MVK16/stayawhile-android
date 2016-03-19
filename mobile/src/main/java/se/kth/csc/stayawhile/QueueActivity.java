@@ -1,5 +1,6 @@
 package se.kth.csc.stayawhile;
 
+
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.AlertDialog;
@@ -471,7 +472,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             throw new RuntimeException(e);
         }
     }
-
+    
     private void setupNotifications() {
         mSocket.on("join", new Emitter.Listener() {
             @Override
