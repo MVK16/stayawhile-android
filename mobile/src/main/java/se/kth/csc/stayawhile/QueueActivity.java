@@ -183,6 +183,19 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         mSocket.on("msg", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                Bundle msg = new Bundle();
+                try {
+                    JSONObject jsonArg = (JSONObject) args[0];
+                    msg.putString("message", jsonArg.getString("message"));
+                    msg.putString("sender", jsonArg.getString("sender"));
+                    RecievedMessageDialogFragment fragment = new RecievedMessageDialogFragment();
+                    fragment.setArguments(msg);
+                    fragment.show(getFragmentManager(), "RecievedMessageDialogFragment");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+
                 System.out.println("msg " + Arrays.toString(args));
             }
         });
