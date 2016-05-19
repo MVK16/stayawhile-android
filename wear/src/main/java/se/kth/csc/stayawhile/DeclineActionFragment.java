@@ -11,19 +11,19 @@ import android.widget.ImageView;
 /**
  * Created by viklu on 2016-04-22.
  */
-public class AcceptActionFragment extends Fragment {
+public class DeclineActionFragment extends Fragment {
     private String userid;
     private View view;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         userid = getArguments().getString("uid");
-        view = inflater.inflate(R.layout.accept_action_fragment, container, false);
+        view = inflater.inflate(R.layout.decline_action_fragment, container, false);
         ImageView imageView = (ImageView) view.findViewById(R.id.accept);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 MainActivity.mMessageListener.sendToggleAttendUser(userid);
-                MainGridPagerAdapter.setAttending(true);
+                MainGridPagerAdapter.setAttending(false);
                 return false;
             }
         });

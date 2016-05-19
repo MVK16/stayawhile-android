@@ -1,6 +1,7 @@
 package se.kth.csc.stayawhile;
 
 
+import android.os.Bundle;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -9,6 +10,12 @@ import com.google.android.gms.wearable.Node;
 import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 import com.google.android.gms.wearable.WearableListenerService;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 
 /**
  * Created by willy on 27/04/16.
@@ -35,15 +42,33 @@ public class WearMessageListener extends WearableListenerService {
         sendMessage(SEND_KICK_USER, user.getBytes());
     }
 
-    public void sendAttendUser(String user){
+    public void sendToggleAttendUser(String user){
         sendMessage(SEND_ATTEND_USER, user.getBytes());
     }
 
     @Override
     public void onMessageReceived(MessageEvent messageEvent){
         if( messageEvent.getPath().equalsIgnoreCase( SENDING_QUEUE ) ) {
-
-            //TODO: Generate objects from received queue.
+            try {
+                JSONArray queue = new JSONArray(new String(messageEvent.getData()));
+                ArrayList<Bundle> queuees = new ArrayList<>();
+                for (int i = 0; i < queue.length(); i++) {
+                    Bundle queueeBundle = new Bundle();
+                    JSONObject queueeJSON = queue.getJSONObject(i);
+                    queueeBundle.putString("ugid", queueeJSON.getString("ugKthid"));
+                    queueeBundle.putString("name", queueeJSON.getString("realname"));
+                    queueeBundle.putString("location", queueeJSON.getString("location"));
+                    queueeBundle.putString("comment", queueeJSON.getString("comment"));
+                    if (queueeJSON.getBoolean("help"))
+                        queueeBundle.putString("type","Help");
+                    else
+                        queueeBundle.putString("type","Present");
+                    queuees.add(queueeBundle);
+                }
+                MainGridPagerAdapter.setQueue(queuees);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
             Log.i("DEV", "Got queue sent to us! Sending reply! Queue data: " + new String(messageEvent.getData()));
             sendMessage("/saw_repl", new byte[0]);
 

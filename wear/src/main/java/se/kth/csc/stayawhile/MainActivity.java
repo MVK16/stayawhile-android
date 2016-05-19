@@ -11,15 +11,14 @@ import com.google.android.gms.wearable.Wearable;
 
 public class MainActivity extends WearableActivity {
     public static WearMessageListener mMessageListener;
-
+    protected static GridViewPager pager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        final GridViewPager pager = (GridViewPager) findViewById(R.id.pager);
+        pager = (GridViewPager) findViewById(R.id.pager);
 
-        pager.setAdapter(new MainGridPagerAdapter(this, getFragmentManager()));
-
+        pager.setAdapter(MainGridPagerAdapter.getMainGridPagerAdapter(getFragmentManager()));
         mMessageListener = new WearMessageListener(this);
         Wearable.MessageApi.addListener(mMessageListener.getApi(), mMessageListener);
     }
