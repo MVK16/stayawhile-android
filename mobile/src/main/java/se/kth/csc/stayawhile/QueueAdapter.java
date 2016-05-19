@@ -116,6 +116,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
                 } else {
                     helpItem.setTitle("Help");
                 }
+                if (!mActionListener.hasComments(mData)){
+                    menu.removeItem(R.id.actionRead);
+                }
             }
         }
     }
@@ -254,5 +257,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
         void cantFind(JSONObject student);
         boolean gettingHelp(JSONObject data);
         MenuInflater getMenuInflater(JSONObject data);
+        boolean hasComments(JSONObject student);
     }
 }

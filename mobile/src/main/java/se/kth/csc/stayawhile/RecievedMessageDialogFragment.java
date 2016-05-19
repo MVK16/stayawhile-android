@@ -14,9 +14,13 @@ public class RecievedMessageDialogFragment extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Bundle args = getArguments();
         android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getActivity());
-        builder.setTitle("Message")
+        String title = args.getString("title");
+        builder.setTitle(title)
                 .setNeutralButton("OK", null);
-        String message = args.getString("message") + "\n\n" + args.getString("sender");
+        String message = args.getString("message");
+        if(args.getString("sender") != null) {
+            message = message + "\n\n" + args.getString("sender");
+        }
         StringBuilder sb = new StringBuilder();
         sb.append(message);
         builder.setMessage(sb.toString());
