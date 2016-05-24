@@ -18,7 +18,7 @@ public class DeclineActionFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         userid = getArguments().getString("uid");
         view = inflater.inflate(R.layout.decline_action_fragment, container, false);
-        ImageView imageView = (ImageView) view.findViewById(R.id.accept);
+        ImageView imageView = (ImageView) view.findViewById(R.id.decline);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {

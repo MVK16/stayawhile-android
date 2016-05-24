@@ -5,7 +5,7 @@
     android:background="@color/dark_grey">
 
     <ImageView
-        android:id="@+id/accept"
+        android:id="@+id/attend"
         android:src="@drawable/attend"
         android:scaleType="fitCenter"
         android:layout_width="100dp"
@@ -17,7 +17,7 @@
         android:layout_marginTop="6dp"
         android:layout_width="wrap_content"
         android:layout_height="24dp"
-        android:layout_below="@id/accept"
+        android:layout_below="@id/attend"
         android:text="Attend User"
         android:textSize="18sp"
         android:textColor="@color/white"

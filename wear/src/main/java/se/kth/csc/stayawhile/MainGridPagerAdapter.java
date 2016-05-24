@@ -2,7 +2,6 @@ package se.kth.csc.stayawhile;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.wearable.view.FragmentGridPagerAdapter;
 
@@ -16,7 +15,8 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
     private static MainGridPagerAdapter singleton;
     private List<Row> queue = new ArrayList<>();
     private boolean isAttending = false;
-    private int currentRow = 0;
+    private int currentQueuee = 0;
+    private UpdateButtonFragment updateButton = new UpdateButtonFragment();
 
     public static void setQueue(List<Bundle> queue) {
         //MainGridPagerAdapter.queue = queue; TODO: Fix
@@ -55,20 +55,24 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
 
     public static void setAttending(boolean isAttending) {
         singleton.isAttending = isAttending;
-        singleton.queue.get(singleton.currentRow).isAttending = isAttending;
-        singleton.queue.get(singleton.currentRow).update();
+        singleton.queue.get(singleton.currentQueuee).isAttending = isAttending;
+        singleton.queue.get(singleton.currentQueuee).update();
         singleton.notifyDataSetChanged();
-        MainActivity.pager.setCurrentItem(0,0);
+        if (isAttending)
+            MainActivity.pager.setCurrentItem(0,0); //Only one row should be visible
+        else
+            MainActivity.pager.setCurrentItem(1,0); //Show row below updatebutton
         singleton.notifyDataSetChanged();
         MainActivity.pager.invalidate();
-        singleton.setCurrentColumnForRow(0,0);
     }
 
     @Override
     public Fragment getFragment(int row, int col) {
+        if (row == 0 && !isAttending)
+            return updateButton;
         if (!isAttending)
-            currentRow = row;
-        return queue.get(currentRow).getFragment(col);
+            currentQueuee = row-1;
+        return queue.get(currentQueuee).getFragment(col);
     }
 
     @Override
@@ -76,12 +80,15 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
         if (isAttending)
             return 1;
         else
-            return Math.max(queue.size(), 1);
+            return queue.size()+1;
     }
 
     @Override
     public int getColumnCount(int rowNum) {
-        return 3;
+        if (rowNum == 0)
+            return 1;
+        else
+            return 3;
     }
 
     class Row {

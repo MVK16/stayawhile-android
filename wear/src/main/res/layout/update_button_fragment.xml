@@ -2,11 +2,11 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/green">
+    android:background="@color/dark_grey">
 
     <ImageView
-        android:id="@+id/decline"
-        android:src="@drawable/unattend"
+        android:id="@+id/update"
+        android:src="@drawable/reload"
         android:scaleType="fitCenter"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -17,8 +17,8 @@
         android:layout_marginTop="6dp"
         android:layout_width="wrap_content"
         android:layout_height="24dp"
-        android:layout_below="@id/decline"
-        android:text="Unattend User"
+        android:layout_below="@id/update"
+        android:text="Update queue"
         android:textSize="18sp"
         android:textColor="@color/white"
         android:layout_centerHorizontal="true"/>
