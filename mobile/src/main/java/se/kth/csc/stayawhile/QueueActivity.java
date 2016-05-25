@@ -28,6 +28,13 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.PutDataMapRequest;
+import com.google.android.gms.wearable.PutDataRequest;
+import com.google.android.gms.wearable.Wearable;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +64,8 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     private String mUgid;
     private PowerManager.WakeLock mWakeLock;
     private JSONObject curContextMenuObj;
+
+    private GoogleApiClient mGoogleApiClient;
 
     {
         try {
@@ -135,6 +144,22 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         mWakeLock.acquire();
         setSocketListeners();
         setupNotifications();
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addApi(Wearable.API)
+                .build();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mGoogleApiClient.disconnect();
     }
 
     private void setSocketListeners() {
@@ -161,11 +186,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             @Override
             public void call(Object... args) {
                 setHelp(args);
-                try {
-                    MainActivity.wearMessageHandler.sendQueueToWear(mQueue);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                sendQueueToWear();
             }
         });
         mSocket.on("stopHelp", new Emitter.Listener() {
@@ -200,6 +221,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         super.onDestroy();
         mSocket.disconnect();
         mWakeLock.release();
+        // TODO: Delete the queue from the DataAPI-thing
     }
 
     private void sendQueueUpdate() {
@@ -341,6 +363,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     private void newUser(Object... args) {
         JSONObject person = (JSONObject) args[0];
         mAdapter.add(person);
+        sendQueueToWear();
     }
 
     private void removeUser(Object... args) {
@@ -350,6 +373,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             if (pos >= 0) {
                 mAdapter.removePosition(pos);
             }
+            sendQueueToWear();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -372,12 +396,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             throw new RuntimeException(e);
         }
 
-
-        try {
-            MainActivity.wearMessageHandler.sendQueueToWear(mQueue);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        sendQueueToWear();
     }
 
     public boolean onSupportNavigateUp() {
@@ -561,4 +580,29 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         }
         return false;
     }
+
+    private void sendQueueToWear() {
+        // TODO: This is a complete hack...
+        //       Note updates do not work properly while the app is in the background
+        new APITask(new APICallback() {
+            @Override
+            public void r(String result) {
+                try {
+                    String queue = new JSONObject(result).getJSONArray("queue").toString();
+
+                    PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/stayawhile/queue");
+                    putDataMapReq.getDataMap().putString(QUEUE_KEY, queue);
+                    PutDataRequest putDataReq = putDataMapReq.asPutDataRequest();
+                    putDataReq.setUrgent();
+                    PendingResult<DataApi.DataItemResult> pendingResult =
+                            Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
+                }
+                catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }).execute("method", "queue/" + Uri.encode(mQueueName));
+    }
+
+    private static final String QUEUE_KEY = "se.kth.csc.stayawhile.queue";
 }
