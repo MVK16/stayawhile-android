@@ -31,6 +31,8 @@ import android.widget.TextView;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.wearable.DataApi;
+import com.google.android.gms.wearable.MessageApi;
+import com.google.android.gms.wearable.MessageEvent;
 import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
@@ -145,6 +147,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         setSocketListeners();
         setupNotifications();
 
+        // DataItem API
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .build();
@@ -154,6 +157,16 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     public void onResume() {
         super.onResume();
         mGoogleApiClient.connect();
+
+        // Message API
+        Wearable.MessageApi.addListener(mGoogleApiClient, new MessageApi.MessageListener() {
+            @Override
+            public void onMessageReceived(MessageEvent messageEvent) {
+                if (messageEvent.getPath().equals("/stayawhile/queuee/kick")) {
+                    System.out.println("kick");
+                }
+            }
+        });
     }
 
     @Override
