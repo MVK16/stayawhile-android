@@ -149,6 +149,7 @@ public class MainActivity extends WearableActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        android.os.Process.killProcess(android.os.Process.myPid());
     }
 
     private void readQueue() {
