@@ -15,20 +15,31 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
     private static MainGridPagerAdapter singleton;
     private List<Row> mQueue = new ArrayList<>();
     private boolean isAttending = false;
-    private int currentQueuee = 0;
     private UpdateButtonFragment updateButton = new UpdateButtonFragment();
 
-    public void setQueue(List<Bundle> queue) {
+    public void setQueue(List<Bundle> queue,boolean isAttending) {
+        this.isAttending = isAttending;
         mQueue = new ArrayList<>();
 
         for (Bundle queuee : queue) {
             mQueue.add(new Row(queuee));
         }
+        if (isAttending) {
+            mQueue.get(0).isAttending = true;
+            mQueue.get(0).update();
+        }
+
+        singleton.notifyDataSetChanged();
+        MainActivity.pager.setCurrentItem(0,0); //Only one row should be visible
+        singleton.notifyDataSetChanged();
+        MainActivity.pager.invalidate();
     }
 
     public static MainGridPagerAdapter getMainGridPagerAdapter(FragmentManager fm) {
         if (singleton == null)
             singleton = new MainGridPagerAdapter(fm);
+
+        MainActivity.getInstance().sendMessageToHost("/stayawhile/queue/update", new byte[0]);
         return singleton;
     }
 
@@ -40,39 +51,24 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
         super(fm);
     }
 
-    public static void setAttending(boolean isAttending) {
-        singleton.isAttending = isAttending;
-        singleton.mQueue.get(singleton.currentQueuee).isAttending = isAttending;
-        singleton.mQueue.get(singleton.currentQueuee).update();
-        singleton.notifyDataSetChanged();
-        if (isAttending)
-            MainActivity.pager.setCurrentItem(0,0); //Only one row should be visible
-        else
-            MainActivity.pager.setCurrentItem(1,0); //Show row below updatebutton
-        singleton.notifyDataSetChanged();
-        MainActivity.pager.invalidate();
-    }
-
     @Override
     public Fragment getFragment(int row, int col) {
-        if (row == 0 && !isAttending)
+        if (mQueue.size() == 0)
             return updateButton;
-        if (!isAttending)
-            currentQueuee = row-1;
-        return mQueue.get(currentQueuee).getFragment(col);
+        return mQueue.get(row).getFragment(col);
     }
 
     @Override
     public int getRowCount() {
-        if (isAttending)
+        if (isAttending || mQueue.size() == 0)
             return 1;
         else
-            return mQueue.size()+1;
+            return mQueue.size();
     }
 
     @Override
     public int getColumnCount(int rowNum) {
-        if (rowNum == 0)
+        if (mQueue.size() == 0)
             return 1;
         else
             return 3;

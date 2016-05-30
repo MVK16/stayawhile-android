@@ -22,7 +22,6 @@ import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
-import com.google.android.gms.wearable.NodeApi;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
@@ -84,7 +83,6 @@ public class MainActivity extends WearableActivity {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
                         Wearable.DataApi.addListener(mGoogleApiClient, onDataChangeListener);
-                        readQueue();
                     }
 
                     @Override
@@ -152,16 +150,11 @@ public class MainActivity extends WearableActivity {
         android.os.Process.killProcess(android.os.Process.myPid());
     }
 
-    private void readQueue() {
-        // TODO: Currently the queue doesn't update untill an event triggers queueUpdated() to read
-        //       it. Was planning on reading it manually here...
-        //PendingResult<DataItem> = Wearable.DataApi.getDataItem(mGoogleApiClient, "/stayawhile/queue");
-    }
-
     private void queueUpdated(String data) {
         try {
             JSONArray queue = new JSONArray(data);
             ArrayList<Bundle> queuees = new ArrayList<>();
+            boolean attending = queue.getJSONObject(0).getBoolean("gettingHelp");
             for (int i = 0; i < queue.length(); i++) {
                 Bundle queueeBundle = new Bundle();
                 JSONObject queueeJSON = queue.getJSONObject(i);
@@ -176,7 +169,7 @@ public class MainActivity extends WearableActivity {
                     queueeBundle.putString("type","Present");
                 queuees.add(queueeBundle);
             }
-            MainGridPagerAdapter.getMainGridPagerAdapter().setQueue(queuees);
+            MainGridPagerAdapter.getMainGridPagerAdapter().setQueue(queuees, attending);
 
             runOnUiThread(new Runnable() {
                 @Override
@@ -215,17 +208,17 @@ public class MainActivity extends WearableActivity {
 
     public void sendMessageToHost(String path, byte[] bytes) {
         if (hostNodeId != null) {
-            Wearable.MessageApi.sendMessage(mGoogleApiClient, hostNodeId,
+                Wearable.MessageApi.sendMessage(mGoogleApiClient, hostNodeId,
                     path, bytes).setResultCallback(new ResultCallback<MessageApi.SendMessageResult>() {
                 @Override
                 public void onResult(@NonNull MessageApi.SendMessageResult sendMessageResult) {
                     if (!sendMessageResult.getStatus().isSuccess()) {
-                        System.out.println("failed to send message");
+                        System.err.println("failed to send message");
                     }
                 }
             });
         } else {
-            System.out.println("no capable node connected");
+            System.err.println("no capable node connected");
             /*
             final String pathTemp = path; final byte[] bytesTemp = bytes;
             PendingResult<NodeApi.GetConnectedNodesResult> result = Wearable.NodeApi.getConnectedNodes(mGoogleApiClient);

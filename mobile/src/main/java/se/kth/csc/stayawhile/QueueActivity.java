@@ -162,11 +162,21 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         Wearable.MessageApi.addListener(mGoogleApiClient, new MessageApi.MessageListener() {
             @Override
             public void onMessageReceived(MessageEvent messageEvent) {
+                Log.i("Msg", messageEvent.getPath() + ": " + new String(messageEvent.getData()));
+                System.err.println(messageEvent.getPath() + ": " + new String(messageEvent.getData()));
                 if (messageEvent.getPath().equals("/stayawhile/queuee/kick")) {
-                    System.out.println("kick");
-                }
+                    sendKick(mAdapter.onPosition(mAdapter.positionOf(new String(messageEvent.getData()))));
+                } else if (messageEvent.getPath().equals("/stayawhile/queuee/attend")) {
+                    JSONObject user = mAdapter.onPosition(mAdapter.positionOf(new String(messageEvent.getData())));
+                    if (gettingHelp(user))
+                        sendStopHelp(user);
+                    else
+                        sendHelp(user);
+                } else if (messageEvent.getPath().equals("/stayawhile/queue/update"))
+                    sendQueueUpdate();
             }
         });
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -211,6 +221,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                         setStopHelp(args);
                     }
                 });
+                sendQueueToWear();
             }
         });
         mSocket.on("msg", new Emitter.Listener() {
@@ -521,7 +532,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 PendingIntent contentIntent = PendingIntent.getActivity(getApplication(), 0, notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
                 builder.setContentIntent(contentIntent);
                 builder.setAutoCancel(true);
-                builder.setLights(Color.BLUE, 500, 500);
+                builder.setLights(Color.MAGENTA, 500, 500);
                 builder.setVibrate(new long[]{200, 200, 200});
                 builder.setStyle(new NotificationCompat.InboxStyle());
                 NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -601,7 +612,22 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             @Override
             public void r(String result) {
                 try {
-                    String queue = new JSONObject(result).getJSONArray("queue").toString();
+                    JSONArray normalOrderQueue = new JSONObject(result).getJSONArray("queue");
+
+                    for (int i = 0; i < normalOrderQueue.length(); i++) {
+                        if (gettingHelp(normalOrderQueue.getJSONObject(i)))
+                            if (mAdapter.helpedByMe(normalOrderQueue.getJSONObject(i))) {
+                                JSONObject attendedUser = normalOrderQueue.getJSONObject(i);
+                                normalOrderQueue = new JSONArray();
+                                normalOrderQueue.put(attendedUser);
+                                break;
+                            } else {
+                                normalOrderQueue.remove(i);
+                                i--;
+                            }
+                    }
+
+                    String queue = normalOrderQueue.toString();
 
                     PutDataMapRequest putDataMapReq = PutDataMapRequest.create("/stayawhile/queue");
                     putDataMapReq.getDataMap().putString(QUEUE_KEY, queue);

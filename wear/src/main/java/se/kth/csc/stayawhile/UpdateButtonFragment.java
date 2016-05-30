@@ -18,7 +18,7 @@ public class UpdateButtonFragment extends Fragment{
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //MainActivity.mMessageListener.requestUpdate();
+                MainActivity.getInstance().sendMessageToHost("/stayawhile/queue/update", new byte[0]);
                 return false;
             }
         });

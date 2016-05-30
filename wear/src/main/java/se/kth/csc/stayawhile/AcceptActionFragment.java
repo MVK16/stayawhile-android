@@ -22,8 +22,7 @@ public class AcceptActionFragment extends Fragment {
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                //MainActivity.mMessageListener.sendToggleAttendUser(userid);
-                MainGridPagerAdapter.setAttending(true);
+                MainActivity.getInstance().sendMessageToHost("/stayawhile/queuee/attend", userid.getBytes());
                 return false;
             }
         });
