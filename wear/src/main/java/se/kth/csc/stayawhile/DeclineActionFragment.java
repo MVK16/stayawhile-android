@@ -16,13 +16,13 @@ public class DeclineActionFragment extends Fragment {
     private View view;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        userid = getArguments().getString("uid");
+        userid = getArguments().getString("ugid");
         view = inflater.inflate(R.layout.decline_action_fragment, container, false);
         ImageView imageView = (ImageView) view.findViewById(R.id.decline);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                MainActivity.mMessageListener.sendToggleAttendUser(userid);
+                //MainActivity.mMessageListener.sendToggleAttendUser(userid);
                 MainGridPagerAdapter.setAttending(false);
                 return false;
             }

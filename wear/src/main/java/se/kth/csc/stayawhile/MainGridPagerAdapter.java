@@ -13,13 +13,17 @@ import java.util.List;
 public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
 
     private static MainGridPagerAdapter singleton;
-    private List<Row> queue = new ArrayList<>();
+    private List<Row> mQueue = new ArrayList<>();
     private boolean isAttending = false;
     private int currentQueuee = 0;
     private UpdateButtonFragment updateButton = new UpdateButtonFragment();
 
-    public static void setQueue(List<Bundle> queue) {
-        //MainGridPagerAdapter.queue = queue; TODO: Fix
+    public void setQueue(List<Bundle> queue) {
+        mQueue = new ArrayList<>();
+
+        for (Bundle queuee : queue) {
+            mQueue.add(new Row(queuee));
+        }
     }
 
     public static MainGridPagerAdapter getMainGridPagerAdapter(FragmentManager fm) {
@@ -34,29 +38,12 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
 
     public MainGridPagerAdapter(FragmentManager fm) {
         super(fm);
-        if (queue.size() == 0) {
-            Bundle b1 = new Bundle();
-            b1.putString("uid", "u1dalexskfHUMBUG");
-            b1.putString("name", "Alexander Viklund");
-            b1.putString("location", "Grey 06");
-            b1.putString("type", "Help");
-            b1.putString("comment", "What am i doing?");
-            queue.add(new Row(b1));
-            Bundle b2 = new Bundle();
-            b2.putString("uid", "u1dwillekfHUMBUG");
-            b2.putString("name", "Wille");
-            b2.putString("location", "Grey 07");
-            b2.putString("type", "Present");
-            b2.putString("comment", "Long message is a long message");
-            queue.add(new Row(b2));
-        }
-            //MainActivity.mMessageListener.requestUpdate();
     }
 
     public static void setAttending(boolean isAttending) {
         singleton.isAttending = isAttending;
-        singleton.queue.get(singleton.currentQueuee).isAttending = isAttending;
-        singleton.queue.get(singleton.currentQueuee).update();
+        singleton.mQueue.get(singleton.currentQueuee).isAttending = isAttending;
+        singleton.mQueue.get(singleton.currentQueuee).update();
         singleton.notifyDataSetChanged();
         if (isAttending)
             MainActivity.pager.setCurrentItem(0,0); //Only one row should be visible
@@ -72,7 +59,7 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
             return updateButton;
         if (!isAttending)
             currentQueuee = row-1;
-        return queue.get(currentQueuee).getFragment(col);
+        return mQueue.get(currentQueuee).getFragment(col);
     }
 
     @Override
@@ -80,7 +67,7 @@ public class MainGridPagerAdapter extends FragmentGridPagerAdapter {
         if (isAttending)
             return 1;
         else
-            return queue.size()+1;
+            return mQueue.size()+1;
     }
 
     @Override

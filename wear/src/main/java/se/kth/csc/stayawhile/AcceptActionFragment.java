@@ -16,13 +16,13 @@ public class AcceptActionFragment extends Fragment {
     private View view;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        userid = getArguments().getString("uid");
+        userid = getArguments().getString("ugid");
         view = inflater.inflate(R.layout.accept_action_fragment, container, false);
         ImageView imageView = (ImageView) view.findViewById(R.id.attend);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                MainActivity.mMessageListener.sendToggleAttendUser(userid);
+                //MainActivity.mMessageListener.sendToggleAttendUser(userid);
                 MainGridPagerAdapter.setAttending(true);
                 return false;
             }

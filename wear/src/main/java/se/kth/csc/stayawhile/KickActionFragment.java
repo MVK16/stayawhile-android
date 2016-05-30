@@ -18,13 +18,14 @@ public class KickActionFragment extends Fragment {
     private boolean status;
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        userid = getArguments().getString("uid");
+        userid = getArguments().getString("ugid");
         view = inflater.inflate(R.layout.kick_action_fragment, container, false);
         ImageView imageView = (ImageView) view.findViewById(R.id.kick);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                MainActivity.mMessageListener.sendKickUser( userid );
+                //MainActivity.mMessageListener.sendKickUser( userid );
+                MainActivity.getInstance().sendMessageToHost("/stayawhile/queuee/kick", userid.getBytes());
                 return false;
             }
         });
