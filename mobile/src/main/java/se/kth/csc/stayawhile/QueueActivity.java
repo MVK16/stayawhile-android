@@ -465,6 +465,14 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     }
 
     @Override
+    public void onBackPressed()
+    {
+        Intent intent = new Intent(this, MainActivity.class);
+        this.finish();
+        startActivity(intent);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
         switch (id) {
