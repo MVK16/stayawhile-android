@@ -28,14 +28,14 @@
         app:showAsAction="never"/>
 
     <item
-        android:id="@+id/actionCompletion"
+        android:id="@+id/actionRead"
         android:orderInCategory="100"
-        android:title="Completion"
+        android:title="Read Comments"
         app:showAsAction="never"/>
 
     <item
         android:id="@+id/actionComment"
         android:orderInCategory="100"
-        android:title="Comment"
+        android:title="Add Comment"
         app:showAsAction="never"/>
 </menu>

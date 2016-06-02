@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -114,6 +115,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
                     helpItem.setTitle("Stop Help");
                 } else {
                     helpItem.setTitle("Help");
+                }
+                if (!mActionListener.hasComments(mData)){
+                    menu.removeItem(R.id.actionRead);
                 }
             }
         }
@@ -253,5 +257,6 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
         void cantFind(JSONObject student);
         boolean gettingHelp(JSONObject data);
         MenuInflater getMenuInflater(JSONObject data);
+        boolean hasComments(JSONObject student);
     }
 }
