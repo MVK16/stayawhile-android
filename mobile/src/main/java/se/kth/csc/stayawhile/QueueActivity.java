@@ -182,7 +182,6 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     @Override
     protected void onPause() {
         super.onPause();
-        mGoogleApiClient.disconnect();
     }
 
     private void setSocketListeners() {
@@ -245,7 +244,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         super.onDestroy();
         mSocket.disconnect();
         mWakeLock.release();
-        // TODO: Delete the queue from the DataAPI-thing
+        mGoogleApiClient.disconnect();
     }
 
     private void sendQueueUpdate() {
