@@ -9,20 +9,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 /**
- * Created by viklu on 2016-04-22.
+ * Created by viklu on 2016-05-20.
  */
-public class AcceptActionFragment extends Fragment {
-    private String userid;
-    private View view;
-
+public class UpdateButtonFragment extends Fragment{
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        userid = getArguments().getString("ugid");
-        view = inflater.inflate(R.layout.accept_action_fragment, container, false);
-        ImageView imageView = (ImageView) view.findViewById(R.id.attend);
+        View view = inflater.inflate(R.layout.update_button_fragment, container, false);
+        ImageView imageView = (ImageView) view.findViewById(R.id.update);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                MainActivity.getInstance().sendMessageToHost("/stayawhile/queuee/attend", userid.getBytes());
+                MainActivity.getInstance().sendMessageToHost("/stayawhile/queue/update", new byte[0]);
                 return false;
             }
         });

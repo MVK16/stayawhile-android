@@ -5,8 +5,8 @@
     android:background="@color/dark_grey">
 
     <ImageView
-        android:id="@+id/kick"
-        android:src="@drawable/kick"
+        android:id="@+id/update"
+        android:src="@drawable/reload"
         android:scaleType="fitCenter"
         android:layout_width="100dp"
         android:layout_height="100dp"
@@ -17,16 +17,10 @@
         android:layout_marginTop="6dp"
         android:layout_width="wrap_content"
         android:layout_height="24dp"
-        android:layout_below="@id/kick"
-        android:text="Kick User"
+        android:layout_below="@id/update"
+        android:text="Update queue"
         android:textSize="18sp"
         android:textColor="@color/white"
         android:layout_centerHorizontal="true"/>
-
-    <!--ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView"
-        android:layout_gravity="right" /-->
 
 </RelativeLayout>

@@ -27,12 +27,9 @@ import se.kth.csc.stayawhile.api.APITask;
 import se.kth.csc.stayawhile.cookies.PersistentCookieStore;
 
 public class MainActivity extends AppCompatActivity {
-    public static WearMessageHandler wearMessageHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        wearMessageHandler = new WearMessageHandler(this);
-
         super.onCreate(savedInstanceState);
 
         android.webkit.CookieManager.getInstance().setAcceptCookie(true);
@@ -52,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }).execute("method", "userData");
-
-
-        Wearable.MessageApi.addListener(wearMessageHandler.getApi(), wearMessageHandler);
-        wearMessageHandler.sendMessage("/saw_sendingqueue", new byte[0]);
     }
 
     public void onLogin(View view) {
@@ -106,6 +99,5 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy(){
         super.onDestroy();
-        wearMessageHandler.disconnectApi();
     }
 }
