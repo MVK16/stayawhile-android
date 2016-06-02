@@ -154,7 +154,8 @@ public class MainActivity extends WearableActivity {
         try {
             JSONArray queue = new JSONArray(data);
             ArrayList<Bundle> queuees = new ArrayList<>();
-            boolean attending = queue.getJSONObject(0).getBoolean("gettingHelp");
+            boolean attending = false;
+            if (queue.length() >= 1) attending = queue.getJSONObject(0).getBoolean("gettingHelp");
             for (int i = 0; i < queue.length(); i++) {
                 Bundle queueeBundle = new Bundle();
                 JSONObject queueeJSON = queue.getJSONObject(i);
