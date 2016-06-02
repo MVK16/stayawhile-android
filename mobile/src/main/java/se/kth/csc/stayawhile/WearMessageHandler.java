@@ -71,7 +71,7 @@ public class WearMessageHandler extends WearableListenerService{
         if (o != null)
             this.mQueue = o;
         if (this.mQueue == null) return;
-        Log.i("DEV", "Queue data: " + mQueue.getJSONObject("queue").toString());
+        Log.i("DEV", "Queue data: " + mQueue.getJSONArray("queue").toString());
         Log.i("DEV", "SIZE: " + mQueue.getJSONArray("queue").toString().getBytes().length);
         sendMessage(SENDING_QUEUE, this.mQueue.getJSONArray("queue").toString().getBytes());
     }

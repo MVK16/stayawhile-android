@@ -2,11 +2,7 @@ package se.kth.csc.stayawhile;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.AlertDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.RingtoneManager;
@@ -19,14 +15,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.ContextMenu;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -35,7 +26,6 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.EventListener;
 import java.util.List;
 
 import io.socket.client.IO;
@@ -57,6 +47,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     private String mUgid;
     private PowerManager.WakeLock mWakeLock;
     private JSONObject curContextMenuObj;
+    private JSONObject comments;
 
     {
         try {
@@ -70,6 +61,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mQueueName = getIntent().getStringExtra("queue");
+        this.comments = new JSONObject();
         try {
             JSONObject userData = new JSONObject(getApplicationContext().getSharedPreferences("userData", Context.MODE_PRIVATE).getString("userData", "{}"));
             this.mUgid = userData.getString("ugKthid");
@@ -182,8 +174,36 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         mSocket.on("msg", new Emitter.Listener() {
             @Override
             public void call(Object... args) {
+                Bundle msg = new Bundle();
+                try {
+                    JSONObject jsonArg = (JSONObject) args[0];
+                    msg.putString("title", "Message");
+                    msg.putString("message", jsonArg.getString("message"));
+                    msg.putString("sender", jsonArg.getString("sender"));
+                    RecievedMessageDialogFragment fragment = new RecievedMessageDialogFragment();
+                    fragment.setArguments(msg);
+                    fragment.show(getFragmentManager(), "RecievedMessageDialogFragment");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
                 System.out.println("msg " + Arrays.toString(args));
             }
+        });
+        mSocket.on("flag", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject jsonArg = (JSONObject) args[0];
+                try {
+                    if (comments.has(jsonArg.getString("ugKthid"))) {
+                        comments.put(jsonArg.getString("ugKthid"), (comments.getString(jsonArg.getString("ugKthid")) + "\n\n" +jsonArg.getString("message")));
+                    } else {
+                        comments.put(jsonArg.getString("ugKthid"), jsonArg.getString("message"));
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
         });
         mSocket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
             @Override
@@ -368,6 +388,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             mAdapter = new QueueAdapter(mQueue.getJSONArray("queue"), this, mUgid);
             mRecyclerView.setAdapter(mAdapter);
             supportInvalidateOptionsMenu();
+            comments = new JSONObject();
         } catch (JSONException e) {
             throw new RuntimeException(e);
         }
@@ -471,7 +492,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             throw new RuntimeException(e);
         }
     }
-
+    
     private void setupNotifications() {
         mSocket.on("join", new Emitter.Listener() {
             @Override
@@ -533,12 +554,11 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 target = COMMENT;
                 title = "Add comment";
                 break;
-            case R.id.actionCompletion:
-                target = COMPLETION;
-                title = "Add Task";
-                break;
-        }
+            case R.id.actionRead:
+                readComments(curContextMenuObj);
+                return true;
 
+        }
         MessageDialogFragment fragment = new MessageDialogFragment();
         fragment.setTitle(title);
         Bundle args = new Bundle();
@@ -552,6 +572,37 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         fragment.setArguments(args);
         fragment.show(getFragmentManager(), "MessageDialogFragment");
         return true;
+    }
+
+    public  void readComments(JSONObject student){
+        Bundle msg = new Bundle();;
+        try {
+            JSONArray messages = student.getJSONArray("messages");
+            String readyString = "";
+            for(int i = 0; i < messages.length(); i++){
+                readyString = readyString + "\n\n" + messages.getString(i);
+            }
+            if(comments.has(student.getString("ugKthid"))) {
+                readyString =  readyString + "\n\n" + comments.getString(student.getString("ugKthid"));
+            }
+            msg.putString("title", "Comments");
+            msg.putString("message", readyString);
+            msg.putString("sender", "");
+            RecievedMessageDialogFragment fragment = new RecievedMessageDialogFragment();
+            fragment.setArguments(msg);
+            fragment.show(getFragmentManager(), "RecievedMessageDialogFragment");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean hasComments(JSONObject student){
+        try {
+            return (comments.has(student.getString("ugKthid")) || (student.getJSONArray("messages").length() != 0));
+            } catch (JSONException e1) {
+            e1.printStackTrace();
+        }
+        return false;
     }
 
     public boolean gettingHelp(JSONObject student) {
