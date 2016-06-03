@@ -1,5 +1,6 @@
 package se.kth.csc.stayawhile;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -18,10 +19,12 @@ import com.google.android.gms.wearable.DataApi;
 import com.google.android.gms.wearable.DataEvent;
 import com.google.android.gms.wearable.DataEventBuffer;
 import com.google.android.gms.wearable.DataItem;
+import com.google.android.gms.wearable.DataItemBuffer;
 import com.google.android.gms.wearable.DataMap;
 import com.google.android.gms.wearable.DataMapItem;
 import com.google.android.gms.wearable.MessageApi;
 import com.google.android.gms.wearable.Node;
+import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
 import org.json.JSONArray;
@@ -83,6 +86,24 @@ public class MainActivity extends WearableActivity {
                     @Override
                     public void onConnected(@Nullable Bundle bundle) {
                         Wearable.DataApi.addListener(mGoogleApiClient, onDataChangeListener);
+
+                        Uri uri = new Uri.Builder()
+                                .scheme(PutDataRequest.WEAR_URI_SCHEME)
+                                .path("/stayawhile/queue")
+                                .build();
+
+                        Wearable.DataApi.getDataItems(mGoogleApiClient, uri)
+                                .setResultCallback(new ResultCallback<DataItemBuffer>() {
+                                                       @Override
+                                                       public void onResult(DataItemBuffer items) {
+                                                           for(int i=0;i<items.getCount();i++) {
+                                                               DataItem item = items.get(i);
+                                                               DataMap dataMap = DataMapItem.fromDataItem(item).getDataMap();
+                                                               queueUpdated(dataMap.getString(QUEUE_KEY));
+                                                           }
+                                                       }
+                                                   }
+                                );
                     }
 
                     @Override
