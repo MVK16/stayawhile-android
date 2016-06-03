@@ -146,12 +146,6 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(Wearable.API)
                 .build();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mGoogleApiClient.connect();
 
         // Message API
         Wearable.MessageApi.addListener(mGoogleApiClient, new MessageApi.MessageListener() {
@@ -171,6 +165,11 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                     sendQueueUpdate();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         mGoogleApiClient.connect();
     }
 
@@ -486,9 +485,21 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
     }
 
     @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, MainActivity.class);
+        this.finish();
+        startActivity(intent);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         final int id = item.getItemId();
         switch (id) {
+            case android.R.id.home:
+                Intent intent = new Intent(this, MainActivity.class);
+                this.finish();
+                startActivity(intent);
+                return true;
             case R.id.action_broadcast:
             case R.id.action_broadcast_faculty:
                 MessageDialogFragment fragment = new MessageDialogFragment();
