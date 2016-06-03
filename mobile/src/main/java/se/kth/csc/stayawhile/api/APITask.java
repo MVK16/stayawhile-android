@@ -41,7 +41,7 @@ public class APITask extends AsyncTask<String, Void, String> {
                 return API.sendAPICall(params[1]);
             }
         } catch (IOException e) {
-            throw new APIException(e);
+            e.printStackTrace();
         }
         return null;
     }

@@ -37,7 +37,7 @@ public class QueueListActivity extends AppCompatActivity {
         try {
             mUserData = new JSONObject(getApplicationContext().getSharedPreferences("userData", Context.MODE_PRIVATE).getString("userData", "{}"));
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         mRecyclerView = (RecyclerView) findViewById(R.id.queue_list);
         mRecyclerView.setHasFixedSize(true);
@@ -62,7 +62,8 @@ public class QueueListActivity extends AppCompatActivity {
                                 }
                             });
                         } catch (JSONException e) {
-                            throw new RuntimeException(e);                        }
+                            e.printStackTrace();
+                        }
                     }
                 }).execute("method", "userData");
             }
@@ -87,7 +88,7 @@ public class QueueListActivity extends AppCompatActivity {
                         runnable.run();
                     }
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }).execute("method", "queueList");

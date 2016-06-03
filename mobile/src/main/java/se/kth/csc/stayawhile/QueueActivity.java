@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.NotificationCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,6 +20,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -65,7 +67,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         try {
             mSocket = IO.socket("http://queue.csc.kth.se/");
         } catch (URISyntaxException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -78,7 +80,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             JSONObject userData = new JSONObject(getApplicationContext().getSharedPreferences("userData", Context.MODE_PRIVATE).getString("userData", "{}"));
             this.mUgid = userData.getString("ugKthid");
         } catch (JSONException json) {
-            throw new RuntimeException(json);
+            json.printStackTrace();
         }
         setContentView(R.layout.activity_queue);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -123,7 +125,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                                             sendHelp(user);
                                         }
                                     } catch (JSONException e) {
-                                        throw new RuntimeException(e);
+                                        e.printStackTrace();
                                     }
                                 }
                             }
@@ -276,7 +278,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                     mQueue = new JSONObject(result);
                     QueueActivity.this.onQueueUpdate();
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }).execute("method", "queue/" + Uri.encode(mQueueName));
@@ -290,11 +292,11 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             obj.put("queueName", mQueueName);
             mSocket.emit("stopHelp", obj);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
-    private void sendHelp(JSONObject user) {
+    public void sendHelp(JSONObject user) {
         try {
             JSONObject obj = new JSONObject();
             obj.put("ugKthid", user.get("ugKthid"));
@@ -302,18 +304,30 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             System.out.println("send help " + obj);
             mSocket.emit("help", obj);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
-    private void sendKick(JSONObject user) {
+    private void sendKick(final JSONObject user) {
         try {
-            JSONObject obj = new JSONObject();
+            final JSONObject obj = new JSONObject();
             obj.put("user", user);
             obj.put("queueName", mQueueName);
+            try {
+                Snackbar.make(findViewById(R.id.snackbarPosition), "Removed " + user.getString("realname"), Snackbar.LENGTH_INDEFINITE)
+                    .setAction("Undo", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            System.out.println("undo " + user);
+                            mSocket.emit("putUser", obj);
+                        }
+                    }).show();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             mSocket.emit("kick", obj);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -324,7 +338,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             mSocket.emit("lock", obj);
             sendQueueUpdate();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -335,7 +349,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             mSocket.emit("unlock", obj);
             sendQueueUpdate();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -351,7 +365,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 mAdapter.add(existing);
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -369,7 +383,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 mAdapter.add(existing);
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -381,7 +395,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 mAdapter.set(pos, user);
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         try {
@@ -400,7 +414,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 }
             });
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -419,7 +433,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             }
             sendQueueToWear();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -427,8 +441,9 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
         try {
             return mQueue.getBoolean("locked");
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return true;
     }
 
     private void onQueueUpdate() {
@@ -438,7 +453,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             supportInvalidateOptionsMenu();
             comments = new JSONObject();
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
 
         sendQueueToWear();
@@ -515,10 +530,10 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                 obj.put("ugKthid", arguments.get("ugKthid"));
                 mSocket.emit("completion", obj);
             } else {
-                throw new RuntimeException("message with invalid target");
+                System.err.println("message with invalid target");
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -532,7 +547,7 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
             mSocket.emit("badLocation", obj);
             sendStopHelp(student);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
     
@@ -688,11 +703,17 @@ public class QueueActivity extends AppCompatActivity implements MessageDialogFra
                             Wearable.DataApi.putDataItem(mGoogleApiClient, putDataReq);
                 }
                 catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
             }
         }).execute("method", "queue/" + Uri.encode(mQueueName));
     }
 
     private static final String QUEUE_KEY = "se.kth.csc.stayawhile.queue";
+
+    public Socket getSocket() {
+        return mSocket;
+    }
+
+    public QueueAdapter getAdapter() { return mAdapter; }
 }

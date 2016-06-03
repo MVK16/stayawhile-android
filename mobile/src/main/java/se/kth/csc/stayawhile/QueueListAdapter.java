@@ -59,7 +59,7 @@ public class QueueListAdapter extends RecyclerView.Adapter<QueueListAdapter.View
                             }).execute("method", "queue/" + Uri.encode(mData.getString("name")));
                         }
                     } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        e.printStackTrace();
                     }
                 }
             });
@@ -89,7 +89,7 @@ public class QueueListAdapter extends RecyclerView.Adapter<QueueListAdapter.View
                     length.setVisibility(View.VISIBLE);
                 }
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
     }
@@ -101,14 +101,14 @@ public class QueueListAdapter extends RecyclerView.Adapter<QueueListAdapter.View
         for (int i = 0; i < queues.length(); i++) {
             try {
                 JSONObject queue = queues.getJSONObject(i);
-                if (queue.getBoolean("hiding")) continue;
+                // if (queue.getBoolean("hiding")) continue;
                 if (isAssistant(queue)) {
                     mAssistantQueue.add(queue);
                 } else {
                     mOtherQueues.add(queue);
                 }
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
         final Comparator<JSONObject> nameComparator = new Comparator<JSONObject>() {
@@ -117,8 +117,9 @@ public class QueueListAdapter extends RecyclerView.Adapter<QueueListAdapter.View
                 try {
                     return lhs.getString("name").compareTo(rhs.getString("name"));
                 } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                    e.printStackTrace();
                 }
+                return 0;
             }
         };
         Collections.sort(mAssistantQueue, nameComparator);
@@ -142,7 +143,7 @@ public class QueueListAdapter extends RecyclerView.Adapter<QueueListAdapter.View
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return false;
     }

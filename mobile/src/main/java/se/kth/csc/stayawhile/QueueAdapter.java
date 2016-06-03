@@ -21,6 +21,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> {
@@ -100,7 +102,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
                     titleBar.setBackgroundColor(mCardView.getResources().getColor(R.color.colorAccent));
                 }
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
 
@@ -147,17 +149,32 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
                     mWaiting.add(obj);
                 }
             } catch (JSONException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
         }
+        Comparator<JSONObject> studentComparator = new Comparator<JSONObject>() {
+            @Override
+            public int compare(JSONObject jsonObject, JSONObject t1) {
+                try {
+                    return Long.compare(jsonObject.getLong("time"), t1.getLong("time"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                return 0;
+            }
+        };
+        Collections.sort(mWaiting, studentComparator);
+        Collections.sort(mGettingHelp, studentComparator);
+        Collections.sort(mGettingHelpByAssistant, studentComparator);
     }
 
     public boolean helpedByMe(JSONObject user) {
         try {
             return user.getBoolean("gettingHelp") && user.has("helper") && user.getString("helper").equals(mUgid);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return false;
     }
 
     public int positionOf(String ugKthid) {
@@ -168,7 +185,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
                 }
             }
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
         return -1;
     }
@@ -203,7 +220,7 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
             }
             if (getItemCount() > 1) notifyItemChanged(1);
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 
@@ -219,8 +236,9 @@ public class QueueAdapter extends RecyclerView.Adapter<QueueAdapter.ViewHolder> 
             queue.add(at, person);
             return at;
         } catch (JSONException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
+        return 0;
     }
 
     public void removePosition(int pos) {
